@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document Metadata Indexer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #2193b0, #6dd5ed); /* fresh blue-teal gradient */
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      width: 800px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    }
+    h1 {
+      text-align: center;
+      color: #0066cc;
+    }
+    input[type="file"], input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    input[type="text"]:focus {
+      border-color: #2193b0;
+      outline: none;
+      box-shadow: 0 0 6px rgba(33,147,176,0.5);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #2193b0;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background: #eaf6f9;
+    }
+    tr:nth-child(odd) {
+      background: #ffffff;
+    }
+    tr:hover {
+      background: #d0f0f7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📂 Document Metadata Indexer</h1>
+    <input type="file" id="fileInput" multiple>
+    <input type="text" id="search" placeholder="Search metadata..." oninput="displayMetadata()">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Size (KB)</th>
+          <th>Last Modified</th>
+        </tr>
+      </thead>
+      <tbody id="metadataTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    let metadataList = JSON.parse(localStorage.getItem("metadataList")) || [];
+
+    document.getElementById("fileInput").addEventListener("change", function(event) {
+      const files = event.target.files;
+      for (let file of files) {
+        const metadata = {
+          name: file.name,
+          type: file.type || "Unknown",
+          size: (file.size / 1024).toFixed(2),
+          lastModified: new Date(file.lastModified).toLocaleString()
+        };
+        metadataList.push(metadata);
+      }
+      localStorage.setItem("metadataList", JSON.stringify(metadataList));
+      displayMetadata();
+    });
+
+    function displayMetadata() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const table = document.getElementById("metadataTable");
+      table.innerHTML = "";
+      metadataList.filter(m =>
+        m.name.toLowerCase().includes(search) ||
+        m.type.toLowerCase().includes(search) ||
+        m.size.includes(search) ||
+        m.lastModified.toLowerCase().includes(search)
+      ).forEach(m => {
+        const row = `<tr>
+          <td>${m.name}</td>
+          <td>${m.type}</td>
+          <td>${m.size}</td>
+          <td>${m.lastModified}</td>
+        </tr>`;
+        table.innerHTML += row;
+      });
+    }
+
+    displayMetadata();
+  </script>
+</body>
+</html>
